@@ -1,0 +1,48 @@
+name: Update Usernames
+
+on:
+  schedule:
+    - cron: '0 8 * * *'   # 8:00 AM UTC daily
+    - cron: '0 20 * * *'  # 8:00 PM UTC daily
+  workflow_dispatch:       # allows manual trigger from GitHub UI
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run update_usernames.py
+        env:
+          RESPOND_IO_TOKEN: ${{ secrets.RESPOND_IO_TOKEN }}
+        run: |
+          python update_usernames.py \
+            --token "$RESPOND_IO_TOKEN" \
+            --state state.json \
+            --log progress.log
+
+      - name: Commit state.json back to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add state.json || true
+          git diff --cached --quiet || git commit -m "chore: update state.json [skip ci]"
+          git push || true
+
+      - name: Upload progress.log as artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: progress-log-${{ github.run_number }}
+          path: progress.log
+          retention-days: 30
