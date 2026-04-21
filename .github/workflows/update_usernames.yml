@@ -2,8 +2,8 @@ name: Update Usernames
 
 on:
   schedule:
-    - cron: '0 5 * * *'   # 8:00 AM Tel Aviv (GMT+3)
-    - cron: '0 17 * * *'  # 8:00 PM Tel Aviv (GMT+3)
+    - cron: '0 4 * * *'   # 7:00 AM Tel Aviv (GMT+3)
+    - cron: '0 19 * * *'  # 22:00 PM Tel Aviv (GMT+3)
   workflow_dispatch:       # allows manual trigger from GitHub UI
 
 jobs:
